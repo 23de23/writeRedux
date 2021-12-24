@@ -15,7 +15,7 @@ export const App = () => {
   )
 }
 const 大儿子 = () => <section>大儿子<User/></section>
-const 二儿子 = () => <section>二儿子<UserModifier/></section>
+const 二儿子 = () => <section>二儿子<Wrapper/></section>
 const 幺儿子 = () => <section>幺儿子</section>
 const User = () => {
   const contextValue = useContext(appContext)
@@ -36,14 +36,23 @@ const reducer = (state,{type,payload}) => {
   }
 }
 
-const UserModifier = () => {
+
+
+const Wrapper = () => {
   const {appState, setAppState} = useContext(appContext)
+  const disptach = (action) => {
+    // 规范setState流程————简化流程简写几个单词
+    setAppState(reducer(appState,action))
+  }
+  return <UserModifier disptach={disptach} state={appState}></UserModifier>
+}
+
+const UserModifier = ({disptach,state}) => {
   const onChange = (e) => {
-    // appState.user.name = e.target.value
-    setAppState(reducer(appState,{type:'updateUser',payload:{name:e.target.value}}))
+    disptach({type:'updateUser',payload:{name:e.target.value}})
   }
   return <div>
-    <input value={appState.user.name}
+    <input value={state.user.name}
       onChange={onChange}/>
   </div>
 }
