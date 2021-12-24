@@ -1,13 +1,26 @@
-import React, {useState, useContext} from 'react'
+import React, {useState, useContext, useEffect} from 'react'
 
 const appContext = React.createContext(null)
-export const App = () => {
-  const [appState, setAppState] = useState({
+const store = {
+  state: {
     user: {name: 'frank', age: 18}
-  })
-  const contextValue = {appState, setAppState}
+  },
+  setState(newState) {
+    store.state = newState
+    store.listeners.map((fn)=>{fn()})
+  },
+  listeners:[],
+  subscribe(fn){
+    store.listeners.push(fn)
+    return ()=>{
+      const index = store.listeners.indexOf(fn)
+      store.listeners.splice(index,1)
+    }
+  }
+}
+export const App = () => {
   return (
-    <appContext.Provider value={contextValue}>
+    <appContext.Provider value={store}>
       <大儿子/>
       <二儿子/>
       <幺儿子/>
@@ -17,11 +30,6 @@ export const App = () => {
 const 大儿子 = () => <section>大儿子<User/></section>
 const 二儿子 = () => <section>二儿子<UserModifier/></section>
 const 幺儿子 = () => <section>幺儿子</section>
-const User = () => {
-  const contextValue = useContext(appContext)
-  return <div>User:{contextValue.appState.user.name}</div>
-
-}
 
 const reducer = (state,{type,payload}) => {
   // reducer为了规范state创建流程
@@ -39,15 +47,21 @@ const reducer = (state,{type,payload}) => {
 const connect = (Component) => {
   // 将disptach连接react的功能
   return (props) => {
-    const {appState, setAppState} = useContext(appContext)
+    const [,upData] = useState({})
+    useEffect(() => {
+      //仅增加一次队列
+      store.subscribe(()=>{
+        upData({})
+      })
+    }, [])
+    const {state, setState} = useContext(appContext)
     const disptach = (action) => {
       // 规范setState流程————简化流程简写几个单词
-      setAppState(reducer(appState,action))
+      setState(reducer(state,action))
     }
-    return <Component {...props} disptach={disptach} state={appState}></Component>
+    return <Component {...props} disptach={disptach} state={state}></Component>
   }
 }
-
 
 const _UserModifier = ({disptach,state}) => {
   const onChange = (e) => {
@@ -59,5 +73,11 @@ const _UserModifier = ({disptach,state}) => {
   </div>
 }
 const UserModifier = connect(_UserModifier)
+
+const _User = () => {
+  const contextValue = useContext(appContext)
+  return <div>User:{contextValue.state.user.name}</div>
+}
+const User = connect(_User)
 
 
