@@ -15,7 +15,7 @@ export const App = () => {
   )
 }
 const 大儿子 = () => <section>大儿子<User/></section>
-const 二儿子 = () => <section>二儿子<Wrapper/></section>
+const 二儿子 = () => <section>二儿子<UserModifier/></section>
 const 幺儿子 = () => <section>幺儿子</section>
 const User = () => {
   const contextValue = useContext(appContext)
@@ -36,18 +36,20 @@ const reducer = (state,{type,payload}) => {
   }
 }
 
-
-
-const Wrapper = () => {
-  const {appState, setAppState} = useContext(appContext)
-  const disptach = (action) => {
-    // 规范setState流程————简化流程简写几个单词
-    setAppState(reducer(appState,action))
+const connect = (Component) => {
+  // 将disptach连接react的功能
+  return (props) => {
+    const {appState, setAppState} = useContext(appContext)
+    const disptach = (action) => {
+      // 规范setState流程————简化流程简写几个单词
+      setAppState(reducer(appState,action))
+    }
+    return <Component {...props} disptach={disptach} state={appState}></Component>
   }
-  return <UserModifier disptach={disptach} state={appState}></UserModifier>
 }
 
-const UserModifier = ({disptach,state}) => {
+
+const _UserModifier = ({disptach,state}) => {
   const onChange = (e) => {
     disptach({type:'updateUser',payload:{name:e.target.value}})
   }
@@ -56,4 +58,6 @@ const UserModifier = ({disptach,state}) => {
       onChange={onChange}/>
   </div>
 }
+const UserModifier = connect(_UserModifier)
+
 
