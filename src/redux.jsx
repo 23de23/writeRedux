@@ -1,12 +1,10 @@
 import React, {useState, useContext, useEffect} from 'react'
 
 
-export const appContext = React.createContext(null)
+const appContext = React.createContext(null)
 export const store = {
-  state: {
-    user: {name: 'frank', age: 18},
-    group:{name:'前端'}
-  },
+  state:null,
+  reducer:null,
   setState(newState) {
     store.state = newState
     store.listeners.map((fn)=>{fn()})
@@ -21,18 +19,20 @@ export const store = {
   }
 }
 
-const reducer = (state,{type,payload}) => {
-  // reducer为了规范state创建流程
-  if(type === 'updateUser'){
-    return {
-      ...state,
-      user:{
-        ...state.user,
-        ...payload
-      }
-    }
-  }
+export const createStore= (reducer,initState) => {
+  store.state = initState
+  store.reducer = reducer
 }
+
+export const Provider = ({store,children}) => {
+  return(
+    <appContext.Provider value={store}>
+      {children}
+    </appContext.Provider>
+  )
+}
+
+
 
 function changed (oladData,newData){
   // 精准渲染
@@ -53,7 +53,7 @@ export const connect = (selector,dispatchSelector) => (Component) => {
     const data = selector ? selector(state) : {state}
     const disptach = (action) => {
       // 规范setState流程————简化流程简写几个单词
-      setState(reducer(state,action))
+      setState(store.reducer(state,action))
     }
 
     const dispatcher = dispatchSelector ? dispatchSelector(disptach) : {disptach}
@@ -67,8 +67,6 @@ export const connect = (selector,dispatchSelector) => (Component) => {
       })
     }, [selector])
 
-
-    
     return <Component {...props} {...dispatcher} {...data}></Component>
   }
 }

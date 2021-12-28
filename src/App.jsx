@@ -1,14 +1,30 @@
-import React, {useContext} from 'react'
-import {connect,store,appContext} from "./redux.jsx"
+import React from 'react'
+import {connect,store,createStore,Provider} from "./redux.jsx"
 import connectToUser from './connecters/connectToUser'
+
+createStore((state,{type,payload}) => {
+  // reducer为了规范state创建流程
+  if(type === 'updateUser'){
+    return {
+      ...state,
+      user:{
+        ...state.user,
+        ...payload
+      }
+    }
+  }
+},{
+  user: {name: 'frank', age: 18},
+  group:{name:'前端'}
+})
 
 export const App = () => {
   return (
-    <appContext.Provider value={store}>
+    <Provider store={store}>
       <大儿子/>
       <二儿子/>
       <幺儿子/>
-    </appContext.Provider>
+    </Provider>
   )
 }
 const 大儿子 = () => <section>大儿子<User/></section>
