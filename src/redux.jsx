@@ -4,7 +4,8 @@ import React, {useState, useContext, useEffect} from 'react'
 export const appContext = React.createContext(null)
 export const store = {
   state: {
-    user: {name: 'frank', age: 18}
+    user: {name: 'frank', age: 18},
+    group:{name:'前端'}
   },
   setState(newState) {
     store.state = newState
@@ -33,19 +34,34 @@ const reducer = (state,{type,payload}) => {
   }
 }
 
+function changed (oladData,newData){
+  // 精准渲染
+  let change = false
+  for(let key in oladData){
+    if(oladData[key] !== newData[key]){
+      change = true
+    }
+  }
+  return change
+}
+
 export const connect = (selector) => (Component) => {
   // 将disptach连接react的功能 
   return (props) => {
     const {state, setState} = useContext(appContext)
     const [,upData] = useState({})
+    const data = selector ? selector(state) : {state}
+
     useEffect(() => {
       //仅增加一次队列
-      store.subscribe(()=>{
-        upData({})
+      return store.subscribe(()=>{
+        const newData = selector ? selector(store.state) : {state:store.state}
+        if(changed(data,newData)){
+          upData({})
+        }
       })
-    }, [])
+    }, [selector])
 
-    const data = selector ? selector(state) : {state}
 
     const disptach = (action) => {
       // 规范setState流程————简化流程简写几个单词
