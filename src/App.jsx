@@ -15,7 +15,7 @@ const 二儿子 = () => <section>二儿子<UserModifier/></section>
 const 幺儿子 = () => <section>幺儿子</section>
 
 
-const _UserModifier = ({disptach,state}) => {
+const UserModifier = connect()(({disptach,state}) => {
   const onChange = (e) => {
     disptach({type:'updateUser',payload:{name:e.target.value}})
   }
@@ -23,13 +23,10 @@ const _UserModifier = ({disptach,state}) => {
     <input value={state.user.name}
       onChange={onChange}/>
   </div>
-}
-const UserModifier = connect(_UserModifier)
+})
 
-const _User = () => {
-  const contextValue = useContext(appContext)
-  return <div>User:{contextValue.state.user.name}</div>
-}
-const User = connect(_User)
+const User = connect((state)=>{return {user:state.user}})(({user}) => {
+  return <div>User:{user.name}</div>
+})
 
 

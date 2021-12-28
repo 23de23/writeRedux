@@ -33,9 +33,10 @@ const reducer = (state,{type,payload}) => {
   }
 }
 
-export const connect = (Component) => {
-  // 将disptach连接react的功能
+export const connect = (selector) => (Component) => {
+  // 将disptach连接react的功能 
   return (props) => {
+    const {state, setState} = useContext(appContext)
     const [,upData] = useState({})
     useEffect(() => {
       //仅增加一次队列
@@ -43,11 +44,13 @@ export const connect = (Component) => {
         upData({})
       })
     }, [])
-    const {state, setState} = useContext(appContext)
+
+    const data = selector ? selector(state) : {state}
+
     const disptach = (action) => {
       // 规范setState流程————简化流程简写几个单词
       setState(reducer(state,action))
     }
-    return <Component {...props} disptach={disptach} state={state}></Component>
+    return <Component {...props} disptach={disptach} {...data}></Component>
   }
 }
