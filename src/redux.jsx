@@ -45,13 +45,18 @@ function changed (oladData,newData){
   return change
 }
 
-export const connect = (selector) => (Component) => {
+export const connect = (selector,dispatchSelector) => (Component) => {
   // 将disptach连接react的功能 
   return (props) => {
     const {state, setState} = useContext(appContext)
     const [,upData] = useState({})
     const data = selector ? selector(state) : {state}
+    const disptach = (action) => {
+      // 规范setState流程————简化流程简写几个单词
+      setState(reducer(state,action))
+    }
 
+    const dispatcher = dispatchSelector ? dispatchSelector(disptach) : {disptach}
     useEffect(() => {
       //仅增加一次队列
       return store.subscribe(()=>{
@@ -63,10 +68,7 @@ export const connect = (selector) => (Component) => {
     }, [selector])
 
 
-    const disptach = (action) => {
-      // 规范setState流程————简化流程简写几个单词
-      setState(reducer(state,action))
-    }
-    return <Component {...props} disptach={disptach} {...data}></Component>
+    
+    return <Component {...props} {...dispatcher} {...data}></Component>
   }
 }

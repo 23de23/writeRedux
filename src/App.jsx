@@ -18,10 +18,12 @@ const 幺儿子 = connect((state)=>{return {group:state.group}})(() => {
 })
 
 
-const UserModifier = connect()(({disptach,state}) => {
+const UserModifier = connect(null,(disptach)=>{
+  return {updateUser:(attrs)=>disptach({type:'updateUser',payload:attrs})}
+})(({updateUser,state}) => {
   console.log('User，二儿子运行了' + Math.random())
   const onChange = (e) => {
-    disptach({type:'updateUser',payload:{name:e.target.value}})
+    updateUser({name:e.target.value})
   }
   return <div>
     <input value={state.user.name}
