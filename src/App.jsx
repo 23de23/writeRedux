@@ -1,5 +1,6 @@
 import React, {useContext} from 'react'
 import {connect,store,appContext} from "./redux.jsx"
+import connectToUser from './connecters/connectToUser'
 
 export const App = () => {
   return (
@@ -18,20 +19,19 @@ const 幺儿子 = connect((state)=>{return {group:state.group}})(() => {
 })
 
 
-const UserModifier = connect(null,(disptach)=>{
-  return {updateUser:(attrs)=>disptach({type:'updateUser',payload:attrs})}
-})(({updateUser,state}) => {
+
+const UserModifier = connectToUser(({updateUser,user}) => {
   console.log('User，二儿子运行了' + Math.random())
   const onChange = (e) => {
     updateUser({name:e.target.value})
   }
   return <div>
-    <input value={state.user.name}
+    <input value={user.name}
       onChange={onChange}/>
   </div>
 })
 
-const User = connect((state)=>{return {user:state.user}})(({user}) => {
+const User = connectToUser(({user}) => {
   console.log('User，大儿子运行了' + Math.random())
   return <div>User:{user.name}</div>
 })
