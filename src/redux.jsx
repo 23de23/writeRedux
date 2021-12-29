@@ -52,6 +52,13 @@ function changed (oladData,newData){
   }
   return change
 }
+
+
+// 让dispatch支持函数与promiseredux并未支持，需要自己引入中间件
+// createStore(reducer,initState,applyMiddleware(reduxThunk,reduxPromise))
+// 这两个中间件会将代码放到dispatch 中
+
+// 支持函数  与中间件redux-thunk 代码等价
 let dispatch = store.dispatch
 const prevDispatch = dispatch
 dispatch = (action) => {
@@ -59,6 +66,18 @@ dispatch = (action) => {
     action(dispatch)
   }else{
     prevDispatch(action)
+  }
+}
+
+// 支持promise 与中间件redux-promise 代码等价
+const prevDispatch2 = dispatch
+dispatch = (action) => {
+  if(action.payload instanceof Promise){
+    action.payload.then(data => {
+      dispatch({...action,payload:data})
+    })
+  }else{
+    prevDispatch2(action)
   }
 }
 

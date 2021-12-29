@@ -64,7 +64,10 @@ const fetchUser = (updateUser) => {
 const UserModifier = connect(null,null)(({state,dispatch}) => {
   console.log('User，二儿子运行了' + Math.random())
   const onChange = () => {
-    dispatch(fetchUser)
+    // action支持函数
+    // dispatch(fetchUser)
+    // 支持promise action
+    dispatch({type:'updateUser',payload:ajax().then(res=>res)})
   }
   return <div>
     <input value={state.user.name}
