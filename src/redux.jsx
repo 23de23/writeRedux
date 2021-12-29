@@ -30,6 +30,7 @@ export const store = {
 export const createStore= (_reducer,initState) => {
   state = initState
   reducer = _reducer
+  return store
 }
 
 export const Provider = ({store,children}) => {
