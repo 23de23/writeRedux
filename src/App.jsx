@@ -34,15 +34,40 @@ const 幺儿子 = connect((state)=>{return {group:state.group}})(() => {
   return <section>幺儿子</section>
 })
 
+const ajax = () => {
+  return new Promise((res,rej)=>{
+    setTimeout(() => {
+      res({name:"3s"})
+    }, 1000);
+  })
+}
+
+const fetchUser = (updateUser) => {
+  ajax().then((res)=>{
+    updateUser({type:'updateUser', payload:res})
+  })
+}
 
 
-const UserModifier = connectToUser(({updateUser,user}) => {
+// const UserModifier = connectToUser(({updateUser,user}) => {
+//   console.log('User，二儿子运行了' + Math.random())
+//   const onChange = (e) => {
+//     updateUser(fetchUser)
+//   }
+//   return <div>
+//     <input value={user.name}
+//       onChange={onChange}/>
+//   </div>
+// })
+
+
+const UserModifier = connect(null,null)(({state,dispatch}) => {
   console.log('User，二儿子运行了' + Math.random())
-  const onChange = (e) => {
-    updateUser({name:e.target.value})
+  const onChange = () => {
+    dispatch(fetchUser)
   }
   return <div>
-    <input value={user.name}
+    <input value={state.user.name}
       onChange={onChange}/>
   </div>
 })

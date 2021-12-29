@@ -52,7 +52,18 @@ function changed (oladData,newData){
   }
   return change
 }
-const dispatch = store.dispatch
+let dispatch = store.dispatch
+const prevDispatch = dispatch
+dispatch = (action) => {
+  if(action instanceof Function){
+    action(dispatch)
+  }else{
+    prevDispatch(action)
+  }
+}
+
+
+
 export const connect = (selector,dispatchSelector) => (Component) => {
   // 将disptach连接react的功能 
   return (props) => {
