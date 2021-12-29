@@ -1,27 +1,35 @@
 import React, {useState, useContext, useEffect} from 'react'
 
 
+let state = null
+let reducer = null
+let listeners = []
+const setState = (newState) => {
+  state = newState
+  listeners.map((fn)=>{fn()})
+}
+
 const appContext = React.createContext(null)
 export const store = {
-  state:null,
-  reducer:null,
-  setState(newState) {
-    store.state = newState
-    store.listeners.map((fn)=>{fn()})
+  getState(){
+    return state
   },
-  listeners:[],
+  dispatch : (action) => {
+    // 规范setState流程————简化流程简写几个单词
+    setState(reducer(state,action))
+  },
   subscribe(fn){
-    store.listeners.push(fn)
+    listeners.push(fn)
     return ()=>{
-      const index = store.listeners.indexOf(fn)
-      store.listeners.splice(index,1)
+      const index = listeners.indexOf(fn)
+      listeners.splice(index,1)
     }
   }
 }
 
-export const createStore= (reducer,initState) => {
-  store.state = initState
-  store.reducer = reducer
+export const createStore= (_reducer,initState) => {
+  state = initState
+  reducer = _reducer
 }
 
 export const Provider = ({store,children}) => {
@@ -44,23 +52,19 @@ function changed (oladData,newData){
   }
   return change
 }
-
+const dispatch = store.dispatch
 export const connect = (selector,dispatchSelector) => (Component) => {
   // 将disptach连接react的功能 
   return (props) => {
-    const {state, setState} = useContext(appContext)
+    // const {setState} = useContext(appContext)
     const [,upData] = useState({})
     const data = selector ? selector(state) : {state}
-    const disptach = (action) => {
-      // 规范setState流程————简化流程简写几个单词
-      setState(store.reducer(state,action))
-    }
 
-    const dispatcher = dispatchSelector ? dispatchSelector(disptach) : {disptach}
+    const dispatcher = dispatchSelector ? dispatchSelector(dispatch) : {dispatch}
     useEffect(() => {
       //仅增加一次队列
       return store.subscribe(()=>{
-        const newData = selector ? selector(store.state) : {state:store.state}
+        const newData = selector ? selector(state) : {state:state}
         if(changed(data,newData)){
           upData({})
         }
